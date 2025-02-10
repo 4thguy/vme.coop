@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: database.vme.coop
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  php:
+    build:
+      context: ./backend.vme.coop
+      dockerfile: Dockerfile
+    container_name: backend.vme.coop
+    restart: always
+    depends_on:
+      - mysql
+    volumes:
+      - ./backend.vme.coop:/var/www/html
+    ports:
+      - "8000:80"
+
+  frontend:
+    build:
+      context: ./frontend.vme.coop
+      dockerfile: Dockerfile
+    container_name: frontend.vme.coop
+    restart: always
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend.vme.coop:/app
+      - /app/node_modules
+    command: ["npm", "start", "--", "--host", "0.0.0.0", "--port", "4200"]
+
+volumes:
+  mysql_data:
