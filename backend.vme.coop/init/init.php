@@ -13,7 +13,6 @@ if (!Capsule::schema()->hasTable('products')) {
         $table->string('brand');
         $table->decimal('price', 10, 2);
         $table->string('image_url');
-        $table->timestamp('date_added')->nullable();
         $table->timestamps();
     });
     echo "Table 'products' created.\n";
@@ -75,9 +74,8 @@ function importProducts($csvFile)
                 'brand' => $data[2],
                 'price' => $data[3],
                 'image_url' => $data[4],
-                'date_added' => $formattedDate,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
+                'created_at' => $formattedDate,
+                'updated_at' =>` $formattedDate,
             ]);
             echo "Inserted product: {$data[0]}\n";
         } else {
