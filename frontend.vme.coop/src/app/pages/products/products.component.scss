@@ -1,0 +1,68 @@
+@import "bootstrap/scss/bootstrap";
+
+.filter-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  >* {
+    flex: 1 1 50%;
+  }
+}
+
+.products {
+  @include make-row();
+  --bs-gutter-y: var(--bs-gutter-x);
+}
+
+.product {
+  @include make-col-ready();
+  display: flex;
+  flex-direction: row;
+
+  @include media-breakpoint-up(sm) {
+    width: calc(100% / 2);
+  }
+
+  @include media-breakpoint-up(md) {
+    width: calc(100% / 4);
+  }
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.mat-mdc-card-content {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: calc(var(--bs-gutter-x) / 2);
+}
+
+::ng-deep {
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.mdc-card__media {
+  max-width: 100%;
+}
+
+.mat-mdc-card-actions {
+  justify-content: flex-end;
+  padding-top: 0;
+
+  mat-label {
+    padding: 0 calc(var(--bs-gutter-x) / 2);
+  }
+}

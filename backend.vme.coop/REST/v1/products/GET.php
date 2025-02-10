@@ -8,7 +8,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 class GetProductsAPI extends BaseGET
 {
 
-    static $pageSize = 10;
+    static $pageSize = 16;
 
     public function __construct()
     {
@@ -33,7 +33,8 @@ class GetProductsAPI extends BaseGET
             $query->where('brand', $brand);
         }
 
-        $pages = ceil($query->count() / self::$pageSize);
+        $totalItems = $query->count();
+        $pages = ceil($totalItems / self::$pageSize);
 
 
         $products = $query
@@ -42,13 +43,13 @@ class GetProductsAPI extends BaseGET
             ->take(self::$pageSize)
             ->get();
 
-        $response = [
+        echo json_encode([
             'pages' => $pages,
             'page' => $page,
-            'data' => $products
-        ];
-
-        echo json_encode($response);
+            'pageSize' => self::$pageSize,
+            'totalItems' => $totalItems,
+            'data' => $products,
+        ]);
     }
 
 }
