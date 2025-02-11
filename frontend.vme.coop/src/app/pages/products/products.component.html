@@ -46,7 +46,14 @@
       </mat-card-content>
       <mat-card-actions>
         <mat-label>{{ calculatePrice(product)| currency :'EUR' }}</mat-label>
-        <button mat-button>Add To Cart</button>
+        @if (isAdd(product)) {
+        <button mat-button (click)="onAddToCart(product)">Add To Cart</button>
+        } @else {
+        <button mat-button (click)="onAddToCart(product)">Update Cart</button>
+        <button matSuffix mat-icon-button aria-label="Clear" (click)="onRemoveFromCart(product)">
+          <mat-icon>clear</mat-icon>
+        </button>
+        }
       </mat-card-actions>
     </mat-card>
   </div>

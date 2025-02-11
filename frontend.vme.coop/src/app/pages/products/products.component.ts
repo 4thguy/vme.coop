@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocomplete, MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatOptionModule } from '@angular/material/core';
@@ -13,6 +13,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { Product } from '../../interfaces/product.interface';
 import { Wrapper } from '../../interfaces/wrapper.interface';
+import { LocalstorageService } from '../../services/localstorage.service';
 import { ProductsService } from '../../services/products.service';
 
 @Component({
@@ -34,6 +35,7 @@ import { ProductsService } from '../../services/products.service';
 })
 export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('cardTitle') cardTitles!: QueryList<ElementRef>;
+  @ViewChild('brandAuto') brandAuto: MatAutocomplete | undefined;
 
   products: Product[] = [];
 
@@ -58,17 +60,20 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private productService: ProductsService,
+    private localStorageService: LocalstorageService,
   ) { }
 
   ngOnInit(): void {
     this.fetch(1);
-    this.subscriptions.add(this.searchTextChanged.pipe(
-      debounceTime(300),  // Wait 300ms after last keystroke
-      distinctUntilChanged(), // Only trigger if value is different
-    ).subscribe(value => {
-      this.searchText = value;
-    }));
-    this.subscriptions.add(this.productService.getBrands()
+    this.subscriptions.add(this.searchTextChanged
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+      ).subscribe(value => {
+        this.searchText = value;
+      }));
+    this.subscriptions.add(this.productService
+      .getBrands()
       .subscribe((data: Wrapper<string[]>) => {
         this.brands = data.data;
         this.filteredBrands = [...this.brands];
@@ -90,6 +95,9 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   clearBrand(): void {
     this.selectedBrand = '';
+    this.brandSearch = '';
+    this.filteredBrands = [...this.brands];
+    this.brandAuto?.options.forEach(option => option.deselect());
     this.fetch(1);
   }
 
@@ -110,6 +118,61 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filteredBrands = this.brands.filter(brand =>
       brand.toLowerCase().includes(this.brandSearch.toLowerCase())
     );
+  }
+
+  fetch(pageNumber: number) {
+    this.loading = true
+    this.subscriptions.add(
+      this.productService.getProducts(pageNumber, this.searchText, this.brandSearch)
+        .subscribe(
+          (products: Wrapper<Product[]>) => {
+            this.page = products.page;
+            this.pageCount = products.pages;
+            this.pageSize = products.pageSize;
+            this.totalItems = products.totalItems;
+            this.products = products.data;
+            this.recheckCart();
+          },
+          (error: any) => {
+            console.error('Error fetching products:', error);
+          },
+          () => {
+            this.loading = false;
+            requestAnimationFrame(() => {
+              this.setEqualHeight();
+            })
+          }
+        )
+    );
+  }
+
+  calculatePrice(product: Product): number {
+    return parseFloat(product.price.toString()) * (this.qty[product.id] || 1);
+  }
+
+  isAdd(product: Product): boolean {
+    return !this.localStorageService.getItemFromCart(product.id);
+  }
+
+  onAddToCart(product: Product): void {
+    const qty = this.qty[product.id] || 1;
+    this.localStorageService.addToCart(product, qty);
+    this.qty[product.id] = qty;
+  }
+
+  onRemoveFromCart(product: Product): void {
+    this.localStorageService.removeFromCart(product);
+    delete this.qty[product.id];
+  }
+
+  recheckCart(): void {
+    this.products
+      .forEach((product) => {
+        const cartItem = this.localStorageService.getItemFromCart(product.id);
+        if (cartItem) {
+          this.qty[product.id] = cartItem.qty;
+        }
+      });
   }
 
 
@@ -133,36 +196,5 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
         title.nativeElement.style.height = maxHeight + 'px';
       });
     });
-
-
-  }
-
-  fetch(pageNumber: number) {
-    this.loading = true
-    this.subscriptions.add(
-      this.productService.getProducts(pageNumber, this.searchText, this.brandSearch)
-        .subscribe(
-          (products: Wrapper<Product[]>) => {
-            this.page = products.page;
-            this.pageCount = products.pages;
-            this.pageSize = products.pageSize;
-            this.totalItems = products.totalItems;
-            this.products = products.data;
-          },
-          (error: any) => {
-            console.error('Error fetching products:', error);
-          },
-          () => {
-            this.loading = false;
-            requestAnimationFrame(() => {
-              this.setEqualHeight();
-            })
-          }
-        )
-    );
-  }
-
-  calculatePrice(product: Product): number {
-    return parseFloat(product.price.toString()) * (this.qty[product.id] || 1);
   }
 }
