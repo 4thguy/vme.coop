@@ -14,6 +14,10 @@ export class ProductsService {
     private http: HttpClient,
   ) { }
 
+  getProductById(id: string): Observable<Product> {
+    return this.http.get<Product>(`${environment.apiUrl}/v1/product?id=${id}`);
+  }
+
   getProducts(page = 1, search: string, brand: string): Observable<Wrapper<Product[]>> {
     let params: any = { page };
 

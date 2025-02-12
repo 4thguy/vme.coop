@@ -44,5 +44,13 @@ abstract class Base
             "message" => "No response implemented."
         ]);
     }
+
+    public function sendError($code, $message = "An error occurred.")
+    {
+        http_response_code($code);
+        echo json_encode([
+            "error" => $message
+        ]);
+    }
 }
 ?>
