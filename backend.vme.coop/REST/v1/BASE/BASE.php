@@ -9,6 +9,7 @@ abstract class Base
     {
         $this->method = strtoupper($method);
         $this->route = $this->detectRoute($filePath);
+        $this->setUp();
         $this->registerRoute();
     }
 
@@ -23,6 +24,7 @@ abstract class Base
     {
         return $this->route;
     }
+
     private function registerRoute()
     {
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -47,6 +49,11 @@ abstract class Base
             $this->handleRequest();
             exit;
         }
+    }
+
+    public function setUp()
+    {
+        // Initialize any necessary resources or configurations here
     }
 
     // This must be implemented by each HTTP method class
@@ -75,6 +82,30 @@ abstract class Base
             "status" => "error",
             "message" => $message,
         ]);
+    }
+
+    protected function session_start()
+    {
+        // Ensure session is started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
+    protected function ensure_user_logged_in()
+    {
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            return $this->sendError(403, "User is not logged in");
+        }
+    }
+
+    protected function ensure_param($paramName)
+    {
+        $params = $this->params[$paramName] ?? null;
+        if (!$params) {
+            return $this->sendError(400, $paramName . " is missing");
+        }
     }
 }
 ?>

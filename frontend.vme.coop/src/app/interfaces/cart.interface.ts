@@ -1,5 +1,8 @@
 import { CartItem } from "./cartitem.interface";
 
 export interface Cart {
-  [productId: string]: CartItem;
+  cart_id: number;
+  cart: {
+    [productId: string]: CartItem;
+  }
 }

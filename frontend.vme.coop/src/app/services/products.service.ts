@@ -18,7 +18,7 @@ export class ProductsService {
     return this.http.get<Product>(`${environment.apiUrl}/v1/products/${id}`);
   }
 
-  getProducts(page = 1, search: string, brand: string, sort?: string, direction?: 'asc' | 'desc'): Observable<Wrapper<Product[]>> {
+  getProducts(page = 1, search: string, brand: string, sort?: string, direction?: 'asc' | 'desc'): Observable<Wrapper<Product>> {
     let params: any = { page };
 
     if (search) {
@@ -39,10 +39,10 @@ export class ProductsService {
 
     const queryString = new URLSearchParams(params).toString();
 
-    return this.http.get<Wrapper<Product[]>>(`${environment.apiUrl}/v1/products?${queryString}`);
+    return this.http.get<Wrapper<Product>>(`${environment.apiUrl}/v1/products?${queryString}`);
   }
 
-  getBrands(): Observable<Wrapper<string[]>> {
-    return this.http.get<Wrapper<string[]>>(`${environment.apiUrl}/v1/brands`);
+  getBrands(): Observable<Wrapper<string>> {
+    return this.http.get<Wrapper<string>>(`${environment.apiUrl}/v1/brands`);
   }
 }

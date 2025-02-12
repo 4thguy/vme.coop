@@ -9,11 +9,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { Cart } from '../../interfaces/cart.interface';
 import { Product } from '../../interfaces/product.interface';
 import { Wrapper } from '../../interfaces/wrapper.interface';
-import { LocalstorageService } from '../../services/localstorage.service';
+import { OrderService } from '../../services/order.service';
 import { ProductsService } from '../../services/products.service';
 
 @Component({
@@ -29,6 +31,7 @@ import { ProductsService } from '../../services/products.service';
     MatInputModule,
     MatOptionModule,
     MatPaginatorModule,
+    MatSelectModule,
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
@@ -47,7 +50,21 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   brandSearch: string = '';
   selectedBrand: string = '';
 
+  sortBy = [
+    'Name',
+    'Price',
+  ];
+  sortDirection = [
+    'asc',
+    'desc',
+  ];
+  selectedSort: string = '';
+
   qty: any = {};
+  cart: Cart = {
+    cart_id: -1,
+    cart: {},
+  };
 
   page = 1;
   pageCount = 1;
@@ -60,21 +77,22 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private productService: ProductsService,
-    private localStorageService: LocalstorageService,
+    private orderService: OrderService,
   ) { }
 
   ngOnInit(): void {
-    this.fetch(1);
+    this.fetchCart();
+    this.fetchProducts(1);
     this.subscriptions.add(this.searchTextChanged
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
-      ).subscribe(value => {
-        this.searchText = value;
+      ).subscribe((search: string) => {
+        this.searchText = search;
       }));
     this.subscriptions.add(this.productService
       .getBrands()
-      .subscribe((data: Wrapper<string[]>) => {
+      .subscribe((data: Wrapper<string>) => {
         this.brands = data.data;
         this.filteredBrands = [...this.brands];
       }));
@@ -90,7 +108,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   clearSearch(): void {
     this.searchText = '';
-    this.fetch(1);
+    this.fetchProducts(1);
   }
 
   clearBrand(): void {
@@ -98,20 +116,24 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.brandSearch = '';
     this.filteredBrands = [...this.brands];
     this.brandAuto?.options.forEach(option => option.deselect());
-    this.fetch(1);
+    this.fetchProducts(1);
   }
 
   onPageChange(pageNumber: PageEvent): void {
-    this.fetch(pageNumber.pageIndex + 1);
+    this.fetchProducts(pageNumber.pageIndex + 1);
   }
 
   onSearchTextChange(): void {
-    this.fetch(1);
+    this.fetchProducts(1);
   }
 
   onSelectBrand(brand: string): void {
     this.selectedBrand = brand;
-    this.fetch(1);
+    this.fetchProducts(1);
+  }
+
+  onSelectSort(sort: string): void {
+    this.fetchProducts(1);
   }
 
   filterBrandOptions() {
@@ -120,18 +142,36 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  fetch(pageNumber: number) {
-    this.loading = true
+  fetchCart(): void {
+    this.subscriptions.add(this.orderService.fetchCart()
+      .subscribe(
+        (cart: Cart) => {
+          this.cart = cart;
+          this.qty = Object.values(cart.cart)
+            .reduce((acc, item) => {
+              acc[item.product_id] = item.quantity;
+              return acc;
+            }, {} as Record<string, number>);
+        },
+        (error: any) => console.error(error),
+        () => this.loading = false,
+      ));
+  }
+
+  fetchProducts(pageNumber: number) {
+    let sortParams = this.selectedSort.split('-');
+    sortParams = sortParams.length === 2 ? sortParams : [];
+
+    this.loading = true;
     this.subscriptions.add(
-      this.productService.getProducts(pageNumber, this.searchText, this.brandSearch)
+      this.productService.getProducts(pageNumber, this.searchText, this.brandSearch, ...sortParams)
         .subscribe(
-          (products: Wrapper<Product[]>) => {
+          (products: Wrapper<Product>) => {
             this.page = products.page;
             this.pageCount = products.pages;
             this.pageSize = products.pageSize;
             this.totalItems = products.totalItems;
             this.products = products.data;
-            this.recheckCart();
           },
           (error: any) => {
             console.error('Error fetching products:', error);
@@ -151,28 +191,34 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isAdd(product: Product): boolean {
-    return !this.localStorageService.getItemFromCart(product.id);
+    return !this.cart.cart[product.id];
   }
 
   onAddToCart(product: Product): void {
     const qty = this.qty[product.id] || 1;
-    this.localStorageService.addToCart(product, qty);
-    this.qty[product.id] = qty;
+    const payload = { product_id: product.id, quantity: qty };
+    this.subscriptions.add(this.orderService.addToCart([payload], 1)
+      .subscribe(
+        () => {
+          this.cart.cart[product.id] = payload;
+        },
+        (error: any) => {
+          console.error('Error adding to cart:', error);
+        }
+      ));
   }
 
   onRemoveFromCart(product: Product): void {
-    this.localStorageService.removeFromCart(product);
-    delete this.qty[product.id];
-  }
-
-  recheckCart(): void {
-    this.products
-      .forEach((product) => {
-        const cartItem = this.localStorageService.getItemFromCart(product.id);
-        if (cartItem) {
-          this.qty[product.id] = cartItem.qty;
+    this.subscriptions.add(this.orderService.removeFromCart([{ product_id: product.id, quantity: 0 }], 1)
+      .subscribe(
+        () => {
+          delete this.cart.cart[product.id];
+          delete this.qty;
+        },
+        (error: any) => {
+          console.error('Error removing from cart:', error);
         }
-      });
+      ));
   }
 
 
