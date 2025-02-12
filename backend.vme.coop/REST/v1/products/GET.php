@@ -22,6 +22,12 @@ class GetProductsAPI extends BaseGET
         $page = isset($queryParams['page']) ? (int) $queryParams['page'] : 1;
         $search = isset($queryParams['search']) ? trim($queryParams['search']) : '';
         $brand = isset($queryParams['brand']) ? trim($queryParams['brand']) : '';
+        $sortBy = isset($queryParams['sort']) && in_array($queryParams['sort'], ['name', 'price'])
+            ? $queryParams['sort']
+            : 'name';
+        $direction = isset($queryParams['direction']) && in_array($queryParams['direction'], ['asc', 'desc'])
+            ? $queryParams['direction']
+            : 'asc';
 
         $query = Capsule::table('products');
 
@@ -38,7 +44,7 @@ class GetProductsAPI extends BaseGET
 
 
         $products = $query
-            ->orderBy('name', 'asc')
+            ->orderBy($sortBy, $direction)
             ->skip(($page - 1) * self::$pageSize)
             ->take(self::$pageSize)
             ->get();

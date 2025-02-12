@@ -25,6 +25,18 @@
     </button>
     }
   </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Sort by</mat-label>
+    <mat-select [(value)]="selectedSort" (selectionChange)="onSelectSort($event.value)">
+      <mat-option value="" selected></mat-option>
+      @for (by of sortBy; track $index) {
+      @for (direction of sortDirection; track $index) {
+      <mat-option [value]="by + '-' + direction">{{ by }} ({{ direction }})</mat-option>
+      }
+      }
+    </mat-select>
+  </mat-form-field>
 </div>
 
 <div class="products">

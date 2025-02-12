@@ -15,10 +15,10 @@ export class ProductsService {
   ) { }
 
   getProductById(id: string): Observable<Product> {
-    return this.http.get<Product>(`${environment.apiUrl}/v1/product?id=${id}`);
+    return this.http.get<Product>(`${environment.apiUrl}/v1/products/${id}`);
   }
 
-  getProducts(page = 1, search: string, brand: string): Observable<Wrapper<Product[]>> {
+  getProducts(page = 1, search: string, brand: string, sort?: string, direction?: 'asc' | 'desc'): Observable<Wrapper<Product[]>> {
     let params: any = { page };
 
     if (search) {
@@ -27,6 +27,14 @@ export class ProductsService {
 
     if (brand) {
       params.brand = brand;
+    }
+
+    if (sort) {
+      params.sort = sort;
+    }
+
+    if (direction) {
+      params.direction = direction;
     }
 
     const queryString = new URLSearchParams(params).toString();

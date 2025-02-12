@@ -3,8 +3,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/REST/v1/BASE/GET.php';
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-
-
 class GetProductAPI extends BaseGET
 {
 
@@ -16,17 +14,13 @@ class GetProductAPI extends BaseGET
 
     public function handleRequest()
     {
-        $queryParams = $this->parseQueryParams();
-        $id = $queryParams['id'] ?? null;
-
+        $id = $this->params['id'];
         if (!$id) {
             $this->sendError(400, "id is missing");
             return;
         }
 
-        $query = Capsule::table('products');
-
-        $product = $query
+        $product = Capsule::table('products')
             ->where("id", $id)
             ->first();
 
@@ -37,7 +31,6 @@ class GetProductAPI extends BaseGET
 
         echo json_encode($product);
     }
-
 
 }
 
