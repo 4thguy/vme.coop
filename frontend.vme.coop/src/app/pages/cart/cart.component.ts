@@ -110,19 +110,17 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   buyNow(): void {
-    // this.loading = true;
-    // this.subscriptions.add(this.orderService.addToCart(Object.values(this.cart.cart), this.cart.cart_id)
-    //   .pipe(
-    //     debounceTime(300),
-    //     distinctUntilChanged(),
-    //   )
-    //   .subscribe(
-    //     (order: any) => {
-    //       console.log('Order added to order list:', order);
-    //     },
-    //     (error: any) => console.error(error),
-    //     () => this.loading = false,
-    //   ));
+    this.loading = true;
+    this.subscriptions.add(this.orderService.purchaseCart(this.cart.cart_id)
+      .subscribe(
+        (order: any) => {
+          window.location = order.payment_url;
+        },
+        (error: any) => {
+          console.error(error);
+          this.loading = false;
+        },
+      ));
   }
 
   subtotal(product: CartItem): number {
