@@ -200,10 +200,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.add(this.orderService.addToCart([payload], this.cart.cart_id)
       .subscribe(
         () => {
-          this.cart.products[product.id] = {
-            ...product,
-            quantity: qty,
-          };
+          this.qty[product.id] = qty;
         },
         (error: any) => {
           console.error('Error adding to cart:', error);

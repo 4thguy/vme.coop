@@ -1,0 +1,55 @@
+<div class="table-container">
+  @if (loading) {
+  <mat-spinner />
+  } @else if (orders.length === 0) {
+  <div class="no-orders">
+    <h2>No orders made.</h2>
+  </div>
+  } @else {
+  <table mat-table [dataSource]="orders" class="mat-elevation-z8">
+
+    <!-- ID Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef> ID </th>
+      <td mat-cell *matCellDef="let element">{{ element.id }}</td>
+    </ng-container>
+
+    <!-- Updated At Column -->
+    <ng-container matColumnDef="updated_at">
+      <th mat-header-cell *matHeaderCellDef> Updated At </th>
+      <td mat-cell *matCellDef="let element">
+        {{ element.updated_at | date:'short' }}
+      </td>
+    </ng-container>
+
+    <!-- Status Column -->
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef> Status </th>
+      <td mat-cell *matCellDef="let element"> {{ element.status }} </td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let element">
+        @if (element.status === 'Pending') {
+        <a routerLink="/cart">Buy Now</a>
+        } @else {@if (element.status === 'Awaiting Payment') {
+        <a [href]="paymentLinks[element.id]">Pay Now</a>
+        } @else {
+        <a routerLink="/order/{{ element.id }}">View Details</a>
+        }
+        }
+      </td>
+    </ng-container>
+
+    <!-- Table Header and Rows -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  </table>
+
+  <mat-paginator [hidePageSize]="true" [pageIndex]="page - 1" [length]="totalItems"
+    [disabled]="pageCount === 1 || loading" (page)="onPageChange($event)" />
+  }
+</div>

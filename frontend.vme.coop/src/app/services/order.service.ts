@@ -28,6 +28,10 @@ export class OrderService {
     return this.http.get<any>(`${environment.apiUrl}/v1/orders/current`);
   }
 
+  purchaseCart(cartId: number): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/v1/orders/${cartId}/payment`);
+  }
+
   addToCart(cartItems: CartPayload[], cartId: number): Observable<void> {
     const body = cartItems.map(cartItem => ({
       product_id: cartItem.product_id,
