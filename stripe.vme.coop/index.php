@@ -1,68 +1,68 @@
 <?php
-require_once 'vendor/autoload.php';
+require_once 'base.php';
+
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Stripe\Checkout\Session as StripeCheckoutSession;
 
 $orderId = $_GET['orderId'];
 if (!isset($orderId)) {
-    die("Order ID not provided");
+    redirect_to_cart();
 }
 
-$dotenv = Dotenv\Dotenv::createImmutable('./');
-$dotenv->load();
+$orderStatus = Capsule::table('orders')
+    ->where('id', $orderId)
+    ->value('status_id');
+if (!isset($orderStatus)) {
+    redirect_to_cart();
+}
 
-use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeCheckoutSession;
-Stripe::setAppInfo(
-    "test.vme.coop",
-    "0.0.1",
-    "http://" . $_SERVER['HTTP_HOST'],
-);
-Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+// Fetch the status ID for "Awaiting Payment" in a single efficient query
+$pendingId = Capsule::table('order_status')
+    ->where('status_name', 'Pending')
+    ->value('id');
 
+// Fetch the status ID for "Awaiting Payment" in a single efficient query
+$awaitingPaymentId = Capsule::table('order_status')
+    ->where('status_name', 'Awaiting Payment')
+    ->value('id');
 
-// Initialize Capsule (Eloquent ORM)
-use Illuminate\Database\Capsule\Manager as Capsule;
-$capsule = new Capsule;
-$capsule->addConnection([
-    'driver' => $_ENV['DB_DRIVER'],
-    'host' => $_ENV['DB_HOST'],
-    'database' => $_ENV['DB_DATABASE'],
-    'username' => $_ENV['DB_USERNAME'],
-    'password' => $_ENV['DB_PASSWORD'],
-    'charset' => 'utf8',
-    'collation' => 'utf8_unicode_ci',
-    'prefix' => '',
-]);
-$capsule->setAsGlobal();
-$capsule->bootEloquent();
+if ($orderStatus != $pendingId && $orderStatus != $awaitingPaymentId) {
+    redirect_to_cart();
+}
 
-// Fetch order items with product details
+// Fetch order items with product details and format them for Stripe in one query
 $lineItems = Capsule::table('order_products')
     ->join('products', 'order_products.product_id', '=', 'products.id')
     ->where('order_products.order_id', $orderId)
-    ->get(['products.id', 'products.name', 'products.price', 'order_products.quantity'])
-    ->map(function ($item) {
-        return [
-            'price_data' => [
-                'currency' => 'eur',
-                'product_data' => [
-                    'name' => $item->name,
-                ],
-                'unit_amount' => $item->price * 100, // Stripe expects amount in cents
-            ],
-            'quantity' => $item->quantity,
-        ];
-    })
+    ->select('products.name', 'products.price', 'order_products.quantity')
+    ->get()
+    ->map(fn($item) => [
+        'price_data' => [
+            'currency' => 'eur',
+            'product_data' => ['name' => $item->name],
+            'unit_amount' => (int) ($item->price * 100), // Convert to cents and ensure it's an integer
+        ],
+        'quantity' => (int) $item->quantity,
+    ])
     ->toArray();
 
+// Update order with JSON-encoded line items and new order status
+Capsule::table('orders')
+    ->where('id', $orderId)
+    ->update([
+        'order_contents' => json_encode($lineItems, JSON_UNESCAPED_UNICODE), // Ensures proper encoding
+        'status_id' => $awaitingPaymentId,
+        'updated_at' => $timestamp,
+    ]);
+
 // Create Stripe Checkout Session
-$checkout_session = StripeCheckoutSession::create([
-    'success_url' => "http://" . $_SERVER['HTTP_HOST'] . '/success.php?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url' => "http://" . $_SERVER['HTTP_HOST'] . '/canceled.php',
+$checkoutSession = StripeCheckoutSession::create([
+    'success_url' => "http://" . $_SERVER['HTTP_HOST'] . "/success.php?orderId=$orderId&sessionId={CHECKOUT_SESSION_ID}",
+    'cancel_url' => "http://" . $_SERVER['HTTP_HOST'] . "/cancelled.php?orderId=$orderId",
     'mode' => 'payment',
     'line_items' => $lineItems,
 ]);
 
 header("HTTP/1.1 303 See Other");
-header("Location: " . $checkout_session->url);
-
+header("Location: " . $checkoutSession->url);
 ?>

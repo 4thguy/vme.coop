@@ -34,6 +34,8 @@ services:
       dockerfile: Dockerfile
     container_name: stripe.vme.coop
     restart: always
+    depends_on:
+      - mysql
     volumes:
       - ./stripe.vme.coop:/var/www/html
     ports:
