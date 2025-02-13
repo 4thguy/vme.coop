@@ -1,3 +1,27 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container">
+    <a class="navbar-brand" [routerLink]="['/']">vme.coop</a>
+    <div class="" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="home" [routerLink]="['/']" [routerLinkActive]="'active'">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" aria-current="products" [routerLink]="['products']"
+            [routerLinkActive]="'active'">Products</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" aria-current="orders" [routerLink]="['orders']" [routerLinkActive]="'active'">Orders</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 <div class="container">
   <router-outlet />
 </div>
+
+<a class="shopping-cart-button" mat-fab aria-label="Cart" [routerLink]="['cart']">
+  <mat-icon>shopping_cart</mat-icon>
+</a>

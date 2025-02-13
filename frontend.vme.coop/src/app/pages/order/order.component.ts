@@ -45,7 +45,7 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   fetch(): void {
     const orderId = parseInt(this.route.snapshot.paramMap.get('id') || '0', 10);
-    this.subscriptions.add(this.orderService.fetchOrder(orderId)
+    this.subscriptions.add(this.orderService.getOrder(orderId)
       .subscribe(
         (order: Order) => {
           this.order = order;

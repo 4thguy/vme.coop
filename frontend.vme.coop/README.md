@@ -1,59 +1,42 @@
 # FrontendVmeCoop
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.6.
+## Explanation of how the project is structured
 
-## Development server
+The front-end project is structured as follows: 
 
-To start a local development server, run:
+ - 'services' contains the services needed to interact with the backend.
+ - 'pages' contains the pages that make up the application.
+ - 'interfaces' contains the interfaces for the services and pages to help with type checking.
 
-```bash
-ng serve
-```
+ ## Services
+ There are 3 services present in the project:
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+  - 'CartService' - Handles interactions with the cart API and purchase redirection.
+  - 'OrdersService' - Handles interactions with the orders API.
+  - 'ProductsService' - Handles interactions with the products API.
 
-## Code scaffolding
+ ## Pages
+ 
+ There are 5 pages present in the project:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+  - 'Home' - Hi :)
+  - 'Products' - Lists the products available for purchase, allows the user to add them to cart
+  - 'Cart' - Shopping cart, allows updating of quantity or removing items from cart
+  - 'Orders' - Lists all orders made by the user
+  - 'Order/:id' - Details of a specific order
 
-```bash
-ng generate component component-name
-```
+  ## Assumptions
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+  We are assuming that the user has logged in and is authenticated. Nevertheless, the backend only allows the user to access the cart and order data of user ID 1.
 
-```bash
-ng generate --help
-```
+  ## Dependencies used
 
-## Building
+  - 'Bootstrap' - A front-end framework for building responsive websites. Used for the navbar and the container element.
+  - 'Angular' - A JavaScript framework for building dynamic web applications. Used for the routing, components, and services.
+  - 'Angular Material' - A set of pre-built UI components for Angular applications. Used for the buttons, cards, and other elements in the application.
 
-To build the project run:
+  ## Corners cut
+  
+  - The Angular Application is not split into modules, so all the dependencies have to be loaded before the application boots instead of loading everything as needed.
 
-```bash
-ng build
-```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

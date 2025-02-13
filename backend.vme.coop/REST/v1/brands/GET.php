@@ -28,7 +28,7 @@ class GetBrandsAPI extends BaseGET
         echo json_encode([
             'pages' => 1,
             'page' => 1,
-            'pageSize' => 1,
+            'pageSize' => count($brands),
             'totalItems' => count($brands),
             'data' => $brands,
         ]);

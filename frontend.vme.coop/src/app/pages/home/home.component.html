@@ -1,1 +1,41 @@
-<p>home works!</p>
+<h1 id="frontendvmecoop">FrontendVmeCoop</h1>
+<h2 id="explanation-of-how-the-project-is-structured">Explanation of how the project is structured</h2>
+<p>The front-end project is structured as follows: </p>
+<ul>
+  <li>&#39;services&#39; contains the services needed to interact with the backend.</li>
+  <li>&#39;pages&#39; contains the pages that make up the application.</li>
+  <li>&#39;interfaces&#39; contains the interfaces for the services and pages to help with type checking.</li>
+</ul>
+<h2 id="services">Services</h2>
+<p> There are 3 services present in the project:</p>
+<ul>
+  <li>&#39;CartService&#39; - Handles interactions with the cart API and purchase redirection.</li>
+  <li>&#39;OrdersService&#39; - Handles interactions with the orders API.</li>
+  <li>&#39;ProductsService&#39; - Handles interactions with the products API.</li>
+</ul>
+<h2 id="pages">Pages</h2>
+<p> There are 5 pages present in the project:</p>
+<ul>
+  <li>&#39;Home&#39; - Hi :)</li>
+  <li>&#39;Products&#39; - Lists the products available for purchase, allows the user to add them to cart</li>
+  <li>&#39;Cart&#39; - Shopping cart, allows updating of quantity or removing items from cart</li>
+  <li>&#39;Orders&#39; - Lists all orders made by the user</li>
+  <li>&#39;Order/:id&#39; - Details of a specific order</li>
+</ul>
+<h2 id="assumptions">Assumptions</h2>
+<p> We are assuming that the user has logged in and is authenticated. Nevertheless, the backend only allows the user to
+  access the cart and order data of user ID 1.</p>
+<h2 id="dependencies-used">Dependencies used</h2>
+<ul>
+  <li>&#39;Bootstrap&#39; - A front-end framework for building responsive websites. Used for the navbar and the
+    container element.</li>
+  <li>&#39;Angular&#39; - A JavaScript framework for building dynamic web applications. Used for the routing,
+    components, and services.</li>
+  <li>&#39;Angular Material&#39; - A set of pre-built UI components for Angular applications. Used for the buttons,
+    cards, and other elements in the application.</li>
+</ul>
+<h2 id="corners-cut">Corners cut</h2>
+<ul>
+  <li>The Angular Application is not split into modules, so all the dependencies have to be loaded before the
+    application boots instead of loading everything as needed.</li>
+</ul>

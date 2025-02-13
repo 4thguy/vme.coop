@@ -27,8 +27,7 @@ Capsule::table('order_products')
     ->where('order_id', $orderId)
     ->delete();
 
-$redirectUrl = $_ENV['FRONTEND_SERVER'] . "/orders/$orderId";
+$redirectUrl = $_ENV['FRONTEND_SERVER'] . "/order/$orderId";
 
-header("HTTP/1.1 303 See Other");
-header("Location: " . $redirectUrl);
+redirect_to_url($redirectUrl);
 ?>

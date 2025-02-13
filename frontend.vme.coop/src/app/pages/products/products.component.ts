@@ -16,7 +16,7 @@ import { CartPayload } from '../../interfaces/cart/cart-payload.interface';
 import { Cart } from '../../interfaces/cart/cart.interface';
 import { Product } from '../../interfaces/product.interface';
 import { Wrapper } from '../../interfaces/wrapper.interface';
-import { OrderService } from '../../services/order.service';
+import { CartService } from '../../services/cart.service';
 import { ProductsService } from '../../services/products.service';
 
 @Component({
@@ -78,7 +78,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private productService: ProductsService,
-    private orderService: OrderService,
+    private cartService: CartService,
   ) { }
 
   ngOnInit(): void {
@@ -144,7 +144,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   fetchCart(): void {
-    this.subscriptions.add(this.orderService.fetchCart()
+    this.subscriptions.add(this.cartService.getCart()
       .subscribe(
         (cart: Cart) => {
           this.cart = cart;
@@ -197,7 +197,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   onAddToCart(product: Product): void {
     const qty = this.qty[product.id] || 1;
     const payload: CartPayload = { product_id: product.id, quantity: qty };
-    this.subscriptions.add(this.orderService.addToCart([payload], this.cart.cart_id)
+    this.subscriptions.add(this.cartService.addToCart([payload], this.cart.cart_id)
       .subscribe(
         () => {
           this.qty[product.id] = qty;
@@ -209,7 +209,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onRemoveFromCart(product: Product): void {
-    this.subscriptions.add(this.orderService.removeFromCart([{ product_id: product.id, quantity: 0 }], 1)
+    this.subscriptions.add(this.cartService.removeFromCart([{ product_id: product.id, quantity: 0 }], 1)
       .subscribe(
         () => {
           delete this.cart.products[product.id];

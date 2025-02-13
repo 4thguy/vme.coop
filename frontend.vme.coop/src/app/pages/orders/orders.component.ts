@@ -9,6 +9,7 @@ import { Subscription } from 'rxjs';
 import { Order } from '../../interfaces/order.interface';
 import { Wrapper } from '../../interfaces/wrapper.interface';
 import { OrderService } from '../../services/order.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-orders',
@@ -41,6 +42,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
 
   constructor(
     private orderService: OrderService,
+    private cartService: CartService,
   ) {
   }
 
@@ -69,7 +71,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
           this.orders
             .filter((order: Order) => order.status === 'Awaiting Payment')
             .forEach((order: Order) => {
-              this.subscriptions.add(this.orderService.purchaseCart(order.id)
+              this.subscriptions.add(this.cartService.purchaseCart(order.id)
                 .subscribe((paymentLink: any) => {
                   this.paymentLinks[order.id] = paymentLink.payment_url;
                 }));

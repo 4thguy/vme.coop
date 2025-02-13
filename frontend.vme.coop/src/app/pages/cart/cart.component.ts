@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CartItem } from '../../interfaces/cart/cart-item.interface';
 import { Cart } from '../../interfaces/cart/cart.interface';
-import { OrderService } from '../../services/order.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-cart',
@@ -42,7 +42,7 @@ export class CartComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
 
   constructor(
-    private orderService: OrderService,
+    private cartService: CartService,
   ) {
   }
 
@@ -55,7 +55,7 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   fetch(): void {
-    this.subscriptions.add(this.orderService.fetchCart()
+    this.subscriptions.add(this.cartService.getCart()
       .subscribe(
         (cart: Cart) => {
           this.cart = cart;
@@ -69,7 +69,7 @@ export class CartComponent implements OnInit, OnDestroy {
     this.loading = true;
     const qty = product.quantity || 0;
     if (qty > 0) {
-      this.subscriptions.add(this.orderService.addToCart([{ product_id: product.id, quantity: qty }], this.cart.cart_id)
+      this.subscriptions.add(this.cartService.addToCart([{ product_id: product.id, quantity: qty }], this.cart.cart_id)
         .pipe(
           debounceTime(300),
           distinctUntilChanged(),
@@ -90,7 +90,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   removeItem(product: CartItem): void {
     this.loading = true;
-    this.subscriptions.add(this.orderService.removeFromCart([{ product_id: product.id, quantity: 0 }], this.cart.cart_id)
+    this.subscriptions.add(this.cartService.removeFromCart([{ product_id: product.id, quantity: 0 }], this.cart.cart_id)
       .pipe(
         debounceTime(300),
         distinctUntilChanged(),
@@ -111,7 +111,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   buyNow(): void {
     this.loading = true;
-    this.subscriptions.add(this.orderService.purchaseCart(this.cart.cart_id)
+    this.subscriptions.add(this.cartService.purchaseCart(this.cart.cart_id)
       .subscribe(
         (order: any) => {
           window.location = order.payment_url;

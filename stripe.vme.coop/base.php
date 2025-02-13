@@ -31,12 +31,17 @@ $capsule->addConnection([
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
+function redirect_to_url($redirectUrl)
+{
+    $script = "<script>window.location.href='$redirectUrl;'</script>";
+    echo $script;
+    exit();
+}
+
 function redirect_to_cart()
 {
     $redirectUrl = $_ENV['FRONTEND_SERVER'] . "/cart";
-
-    header("HTTP/1.1 303 See Other");
-    header("Location: " . $redirectUrl);
+    redirect_to_url($redirectUrl);
 }
 
 ?>
