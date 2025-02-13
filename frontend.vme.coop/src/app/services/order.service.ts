@@ -28,6 +28,10 @@ export class OrderService {
     return this.http.get<any>(`${environment.apiUrl}/v1/orders/current`);
   }
 
+  fetchOrder(orderId: number): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/v1/orders/${orderId}`);
+  }
+
   purchaseCart(cartId: number): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/v1/orders/${cartId}/payment`);
   }
