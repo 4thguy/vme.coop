@@ -13,7 +13,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./database.vme.coop:/var/lib/mysql
 
   php:
     build:
@@ -27,6 +27,17 @@ services:
       - ./backend.vme.coop:/var/www/html
     ports:
       - "8000:80"
+
+  stripe:
+    build:
+      context: ./stripe.vme.coop
+      dockerfile: Dockerfile
+    container_name: stripe.vme.coop
+    restart: always
+    volumes:
+      - ./stripe.vme.coop:/var/www/html
+    ports:
+      - "5000:80"
 
   frontend:
     build:

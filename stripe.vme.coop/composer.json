@@ -1,6 +1,6 @@
 {
     "require": {
-        "illuminate/database": "^10.0",
+        "stripe/stripe-php": "^16.1.0",
         "vlucas/phpdotenv": "^5.3"
     }
 }
