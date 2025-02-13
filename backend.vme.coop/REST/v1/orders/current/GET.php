@@ -53,24 +53,27 @@ class GetCurrentOrderAPI extends BaseGET
                 'updated_at' => $timestamp,
             ]);
 
-        // Fetch cart items for the order
-        $cart = Capsule::table('order_products')
+        // Fetch Existing Order Items in Key-Value Format
+        $order = Capsule::table('order_products')
             ->where('order_id', $orderId)
-            ->get(['product_id', 'quantity'])
-            ->mapWithKeys(function ($item) {
-                return [
-                    $item->product_id => [
-                        'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
-                    ]
-                ];
+            ->pluck('quantity', 'product_id')
+            ->toArray();
+
+        $cartItems = Capsule::table('products')
+            ->whereIn('id', array_keys($order))
+            ->get()
+            ->map(function ($product) use ($order) {
+                $productArray = (array) $product;
+                $productArray['quantity'] = $order[$product->id];
+                return $productArray;
             })
+            ->values()
             ->toArray();
 
         // Return response as JSON
         echo json_encode([
             'cart_id' => $orderId,
-            'cart' => $cart,
+            'products' => $cartItems,
         ]);
     }
 

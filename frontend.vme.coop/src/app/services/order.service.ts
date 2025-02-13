@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Cart } from '../interfaces/cart.interface';
-import { CartItem } from '../interfaces/cartitem.interface';
+import { CartPayload } from '../interfaces/cart/cart-payload.interface';
+import { Cart } from '../interfaces/cart/cart.interface';
 import { Order } from '../interfaces/order.interface';
 import { Wrapper } from '../interfaces/wrapper.interface';
 
@@ -28,7 +28,7 @@ export class OrderService {
     return this.http.get<any>(`${environment.apiUrl}/v1/orders/current`);
   }
 
-  addToCart(cartItems: CartItem[], cartId: number): Observable<void> {
+  addToCart(cartItems: CartPayload[], cartId: number): Observable<void> {
     const body = cartItems.map(cartItem => ({
       product_id: cartItem.product_id,
       quantity: cartItem.quantity,
@@ -37,7 +37,7 @@ export class OrderService {
     return this.http.post<void>(`${environment.apiUrl}/v1/orders/${cartId}/items`, body);
   }
 
-  removeFromCart(cartItems: CartItem[], cartId: number): Observable<void> {
+  removeFromCart(cartItems: CartPayload[], cartId: number): Observable<void> {
     const body = cartItems.map(cartItem => ({
       product_id: cartItem.product_id,
       quantity: cartItem.quantity,

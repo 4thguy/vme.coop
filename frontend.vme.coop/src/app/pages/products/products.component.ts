@@ -12,7 +12,8 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Cart } from '../../interfaces/cart.interface';
+import { CartPayload } from '../../interfaces/cart/cart-payload.interface';
+import { Cart } from '../../interfaces/cart/cart.interface';
 import { Product } from '../../interfaces/product.interface';
 import { Wrapper } from '../../interfaces/wrapper.interface';
 import { OrderService } from '../../services/order.service';
@@ -63,7 +64,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   qty: any = {};
   cart: Cart = {
     cart_id: -1,
-    cart: {},
+    products: [],
   };
 
   page = 1;
@@ -147,14 +148,13 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe(
         (cart: Cart) => {
           this.cart = cart;
-          this.qty = Object.values(cart.cart)
+          this.qty = Object.values(cart.products)
             .reduce((acc, item) => {
-              acc[item.product_id] = item.quantity;
+              acc[item.id] = item.quantity;
               return acc;
             }, {} as Record<string, number>);
         },
         (error: any) => console.error(error),
-        () => this.loading = false,
       ));
   }
 
@@ -191,16 +191,19 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   isAdd(product: Product): boolean {
-    return !this.cart.cart[product.id];
+    return !this.qty[product.id];
   }
 
   onAddToCart(product: Product): void {
     const qty = this.qty[product.id] || 1;
-    const payload = { product_id: product.id, quantity: qty };
-    this.subscriptions.add(this.orderService.addToCart([payload], 1)
+    const payload: CartPayload = { product_id: product.id, quantity: qty };
+    this.subscriptions.add(this.orderService.addToCart([payload], this.cart.cart_id)
       .subscribe(
         () => {
-          this.cart.cart[product.id] = payload;
+          this.cart.products[product.id] = {
+            ...product,
+            quantity: qty,
+          };
         },
         (error: any) => {
           console.error('Error adding to cart:', error);
@@ -212,7 +215,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.add(this.orderService.removeFromCart([{ product_id: product.id, quantity: 0 }], 1)
       .subscribe(
         () => {
-          delete this.cart.cart[product.id];
+          delete this.cart.products[product.id];
           delete this.qty;
         },
         (error: any) => {

@@ -7,12 +7,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { forkJoin, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Cart } from '../../interfaces/cart.interface';
-import { Product } from '../../interfaces/product.interface';
+import { CartItem } from '../../interfaces/cart/cart-item.interface';
+import { Cart } from '../../interfaces/cart/cart.interface';
 import { OrderService } from '../../services/order.service';
-import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-cart',
@@ -35,56 +34,40 @@ export class CartComponent implements OnInit, OnDestroy {
 
   cart: Cart = {
     cart_id: 0,
-    cart: {},
+    products: [],
   };
-  products: Product[] = [];
 
   loading = true;
 
   private subscriptions: Subscription = new Subscription();
 
   constructor(
-    private productService: ProductsService,
     private orderService: OrderService,
   ) {
   }
 
   ngOnInit(): void {
-    this.fetchCart();
+    this.fetch();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
-  fetchCart(): void {
+  fetch(): void {
     this.subscriptions.add(this.orderService.fetchCart()
       .subscribe(
         (cart: Cart) => {
           this.cart = cart;
-          this.fetchProducts();
         },
         (error: any) => console.error(error),
         () => this.loading = false,
       ));
   }
 
-  fetchProducts(): void {
-    const fork = Object.keys(this.cart.cart).map(key => {
-      return this.productService.getProductById(key);
-    });
-    this.subscriptions.add(forkJoin(fork)
-      .subscribe(
-        (products: Product[]) => this.products = products,
-        (error: any) => console.error(error),
-        () => this.loading = false,
-      )
-    );
-  }
-
-  updateItem(product: Product): void {
+  updateItem(product: CartItem): void {
     this.loading = true;
-    const qty = this.cart.cart[product.id].quantity || 0;
+    const qty = product.quantity || 0;
     if (qty > 0) {
       this.subscriptions.add(this.orderService.addToCart([{ product_id: product.id, quantity: qty }], this.cart.cart_id)
         .pipe(
@@ -93,7 +76,7 @@ export class CartComponent implements OnInit, OnDestroy {
         )
         .subscribe(
           () => {
-            this.cart.cart[product.id].quantity = qty;
+            product.quantity = qty;
           },
           (error: any) => {
             console.error('Error adding to cart:', error);
@@ -105,7 +88,7 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeItem(product: Product): void {
+  removeItem(product: CartItem): void {
     this.loading = true;
     this.subscriptions.add(this.orderService.removeFromCart([{ product_id: product.id, quantity: 0 }], this.cart.cart_id)
       .pipe(
@@ -114,10 +97,9 @@ export class CartComponent implements OnInit, OnDestroy {
       )
       .subscribe(
         (order: any) => {
-          delete this.cart.cart[product.id];
-          for (let i = 0; i < this.products.length; i++) {
-            if (this.products[i].id === product.id) {
-              this.products.splice(i, 1);
+          for (let i = 0; i < this.cart.products.length; i++) {
+            if (this.cart.products[i].id === product.id) {
+              this.cart.products.splice(i, 1);
               break;
             }
           }
@@ -143,11 +125,11 @@ export class CartComponent implements OnInit, OnDestroy {
     //   ));
   }
 
-  subtotal(product: Product): number {
-    return product.price * this.cart.cart[product.id].quantity;
+  subtotal(product: CartItem): number {
+    return product.price * product.quantity;
   }
 
   total(): number {
-    return this.products.reduce((total, product) => total + this.subtotal(product), 0);
+    return this.cart.products.reduce((total, product) => total + this.subtotal(product), 0);
   }
 }

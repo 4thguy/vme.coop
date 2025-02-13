@@ -3,7 +3,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/REST/v1/BASE/POST.php';
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-class GetOrderItemsAPI extends BasePOST
+class GetOrderItemsAPI extends BaseGet
 {
     public function __construct()
     {
@@ -18,7 +18,7 @@ class GetOrderItemsAPI extends BasePOST
 
         $this->ensure_param('id');
 
-        $id = $this->params['id'];
+        $orderId = $this->params['id'];
 
         // here we should check if the user has permissions to access the order
         // the order has to belong to the user
@@ -28,21 +28,23 @@ class GetOrderItemsAPI extends BasePOST
 
         // Fetch Existing Order Items in Key-Value Format
         $order = Capsule::table('order_products')
-            ->where('orders.id', $id)
-            ->get(['product_id', 'quantity'])
-            ->mapWithKeys(function ($item) {
-                return [
-                    $item->product_id => [
-                        'product_id' => $item->product_id,
-                        'quantity' => $item->quantity,
-                    ]
-                ];
-            })
+            ->where('order_id', $orderId)
+            ->pluck('quantity', 'product_id')
             ->toArray();
 
-        $order = $order ? $order : [];
+        $cartItems = Capsule::table('products')
+            ->whereIn('id', array_keys($order))
+            ->get()
+            ->map(function ($product) use ($order) {
+                $productArray = (array) $product;
+                $productArray['quantity'] = $order[$product->id];
+                return $productArray;
+            })
+            ->values()
+            ->toArray();
 
-        echo json_encode($order);
+        echo json_encode($cartItems);
+
     }
 
 }

@@ -1,12 +1,12 @@
 <div class="table-container">
   @if (loading) {
   <mat-spinner />
-  } @else if (products.length === 0) {
+  } @else if (cart.products.length === 0) {
   <div class="no-products">
     <h2>No products in cart.</h2>
   </div>
   } @else {
-  <table mat-table [dataSource]="products" matSort>
+  <table mat-table [dataSource]="cart.products" matSort>
     <!-- ID Column -->
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
@@ -44,8 +44,8 @@
       <td mat-cell *matCellDef="let product">
         <mat-form-field>
           <mat-label>Qty.</mat-label>
-          <input type="number" min="1" [(ngModel)]="cart.cart[product.id].quantity" (change)="updateItem(product)"
-            matInput placeholder="1">
+          <input type="number" min="1" [(ngModel)]="product.quantity" (change)="updateItem(product)" matInput
+            placeholder="1">
         </mat-form-field>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
