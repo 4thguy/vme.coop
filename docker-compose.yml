@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: mydatabase
+      MYSQL_DATABASE: database.vme.coop
       MYSQL_USER: myuser
       MYSQL_PASSWORD: mypassword
     ports:

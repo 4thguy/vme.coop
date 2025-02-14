@@ -20,6 +20,12 @@ class GetOrderItemsAPI extends BaseGet
 
         $orderId = $this->params['id'];
 
+        // Check if Order is 'Pending'
+        $isPending = verify_is_pending($orderId);
+        if (!$isPending) {
+            return $this->sendError(403, "Order cannot be modified.");
+        }
+
         // here we should check if the user has permissions to access the order
         // the order has to belong to the user
         // or the user has to be part of a group that can access orders
