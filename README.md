@@ -14,7 +14,12 @@ More details about each section is available in `README.md` in the respective fo
 
 ## Dependencies used
 
-- `Docker` - Use `docker compose up` to bring the project up. It will take care of pulling the images and setting things up. 
+- `Docker` - Use `docker compose up` to bring the project up. It will take care of pulling the images and setting things up.
+
+## Summary of work
+
+- `Monday`, `Wednesday`, and `Thursday`, coding the application
+- `Thursday` and `Friday` documentation of project stack
 
 
 ## Summary
