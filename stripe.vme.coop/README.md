@@ -31,3 +31,4 @@ The stripe project is structured as follows:
   - I am not checking if this is the user's cart. This allows for a scenario where a client is paying for someone else's order. This means that the client can see what the other user is ordering.
   - Payment details from Stripe are stored with the order, so if such a scenario does occur, the order can be reprocessed and even refunded.
   - At no point in the process will the client see personal details like other user's addresses as the backend only looks for orders belonging to the client and not for orders paid for by the client
+  - This could be avoided by encoding the IDs throughout the project 
