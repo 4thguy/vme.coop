@@ -22,7 +22,7 @@ The front-end project is structured as follows:
   - 'Home' - Hi :)
   - 'Products' - Lists the products available for purchase, allows the user to add them to cart
   - 'Cart' - Shopping cart, allows updating of quantity or removing items from cart
-  - 'Orders' - Lists all orders made by the user
+  - 'Orders' - Lists all orders made by the user. User can view more details or pay for pending orders
   - 'Order/:id' - Details of a specific order
 
   ## Assumptions

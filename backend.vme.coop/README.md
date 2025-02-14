@@ -43,3 +43,4 @@ The back-end project is structured as follows:
   - 'GET' 'v1/orders/current' always fetches the order and a detailed list of products associated with it, regardless of whether the client may need the detail or not.
   - Once the payment process is started, adding new items in the cart is disallowed until the payment is cancelled from Stripe's side
   - PHP checks if DB is initialized every time 'db.php' is run
+  - Database triggers could have been used to keep a log of transactions
