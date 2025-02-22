@@ -94,39 +94,39 @@ export class ProductComponent implements OnInit, OnDestroy {
       ));
   }
 
-    calculatePrice(product: Product): number {
-      return parseFloat(product.price.toString()) * (this.qty[product.id] || 1);
-    }
+  calculatePrice(product: Product): number {
+    return parseFloat(product.price.toString()) * (this.qty[product.id] || 1);
+  }
 
-    isAdd(product: Product): boolean {
-      return !this.qty[product.id];
-    }
+  isAdd(product: Product): boolean {
+    return !this.qty[product.id];
+  }
 
-    onAddToCart(product: Product): void {
-      const qty = this.qty[product.id] || 1;
-      const payload: CartPayload = { product_id: product.id, quantity: qty };
-      this.subscriptions.add(this.cartService.addToCart([payload], this.cart.cart_id)
-        .subscribe(
-          () => {
-            this.qty[product.id] = qty;
-          },
-          (error: any) => {
-            console.error('Error adding to cart:', error);
-          }
-        ));
-    }
+  onAddToCart(product: Product): void {
+    const qty = this.qty[product.id] || 1;
+    const payload: CartPayload = { product_id: product.id, quantity: qty };
+    this.subscriptions.add(this.cartService.addToCart([payload], this.cart.cart_id)
+      .subscribe(
+        () => {
+          this.qty[product.id] = qty;
+        },
+        (error: any) => {
+          console.error('Error adding to cart:', error);
+        }
+      ));
+  }
 
-    onRemoveFromCart(product: Product): void {
-      this.subscriptions.add(this.cartService.removeFromCart([{ product_id: product.id, quantity: 0 }], 1)
-        .subscribe(
-          () => {
-            delete this.cart.products[product.id];
-            delete this.qty;
-          },
-          (error: any) => {
-            console.error('Error removing from cart:', error);
-          }
-        ));
-    }
+  onRemoveFromCart(product: Product): void {
+    this.subscriptions.add(this.cartService.removeFromCart([{ product_id: product.id, quantity: 0 }], this.cart.cart_id)
+      .subscribe(
+        () => {
+          delete this.cart.products[product.id];
+          this.qty[product.id] = 0;
+        },
+        (error: any) => {
+          console.error('Error removing from cart:', error);
+        }
+      ));
+  }
 
 }

@@ -11,6 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { RouterModule } from '@angular/router';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { CartPayload } from '../../interfaces/cart/cart-payload.interface';
@@ -35,6 +36,7 @@ import { ProductsService } from '../../services/products.service';
     MatPaginatorModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    RouterModule,
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
@@ -213,11 +215,11 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onRemoveFromCart(product: Product): void {
-    this.subscriptions.add(this.cartService.removeFromCart([{ product_id: product.id, quantity: 0 }], 1)
+    this.subscriptions.add(this.cartService.removeFromCart([{ product_id: product.id, quantity: 0 }], this.cart.cart_id)
       .subscribe(
         () => {
           delete this.cart.products[product.id];
-          delete this.qty;
+          this.qty[product.id] = 0;
         },
         (error: any) => {
           console.error('Error removing from cart:', error);

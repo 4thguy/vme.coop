@@ -55,7 +55,7 @@
   <div class="product">
     <mat-card class="product-card" appearance="outlined">
       <mat-card-header>
-        <mat-card-title #cardTitle>{{ product.name }}</mat-card-title>
+        <mat-card-title #cardTitle><a [routerLink]="['/product', product.id]">{{ product.name }}</a></mat-card-title>
         <mat-card-subtitle>{{ product.brand }}</mat-card-subtitle>
       </mat-card-header>
       <img mat-card-image [src]="product.image_url" [alt]="product.name"
