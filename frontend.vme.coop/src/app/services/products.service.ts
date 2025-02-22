@@ -19,7 +19,7 @@ export class ProductsService {
    * @param id - The product's ID
    * @return - An Observable that emits the product
    */
-  getProductById(id: string): Observable<Product> {
+  getProductById(id: number): Observable<Product> {
     return this.http.get<Product>(`${environment.apiUrl}/v1/products/${id}`);
   }
 

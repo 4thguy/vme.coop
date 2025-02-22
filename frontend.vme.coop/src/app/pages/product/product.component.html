@@ -1,0 +1,38 @@
+@if (loading) {
+<mat-spinner />
+} @else if (error) {
+<div class="error-message">
+  <h2>Error fetching product.</h2>
+</div>
+} @else if (!!product) {
+<div class="table-container">
+  <h2>Product Details</h2>
+  <div class="product">
+    <img mat-card-image [src]="product.image_url" [alt]="product.name" (error)="product.image_url='assets/fallback.avif'" />
+    <mat-card class="product-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title #cardTitle>{{ product.name }}</mat-card-title>
+        <mat-card-subtitle>{{ product.brand }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <mat-label>{{ product.price | currency :'EUR' }}</mat-label>
+        <mat-form-field>
+          <mat-label>Qty.</mat-label>
+          <input type="number" min="1" [(ngModel)]="qty[product.id]" matInput placeholder="1">
+        </mat-form-field>
+      </mat-card-content>
+      <mat-card-actions>
+        <mat-label>{{ calculatePrice(product)| currency :'EUR' }}</mat-label>
+        @if (isAdd(product)) {
+        <button mat-button (click)="onAddToCart(product)">Add To Cart</button>
+        } @else {
+        <button mat-button (click)="onAddToCart(product)">Update Cart</button>
+        <button matSuffix mat-icon-button aria-label="Clear" (click)="onRemoveFromCart(product)">
+          <mat-icon>clear</mat-icon>
+        </button>
+        }
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
+}
