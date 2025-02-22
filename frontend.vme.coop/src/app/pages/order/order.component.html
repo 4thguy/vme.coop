@@ -1,11 +1,11 @@
+@if (loading) {
+<mat-spinner />
+} @else if (error) {
+<div class="error-message">
+  <h2>Error fetching order.</h2>
+</div>
+} @else if (!!order) {
 <div class="table-container">
-  @if (loading || !order) {
-  <mat-spinner />
-  } @else if (order.order_contents.length === 0) {
-  <div class="no-products">
-    <h2>No products in order.</h2>
-  </div>
-  } @else {
   <h2>Order Details</h2>
   <p><strong>Order status</strong>: {{ order.status }}</p>
   <p><strong>Last update</strong>: {{ order.updated_at | date: 'medium' }}</p>
@@ -52,5 +52,5 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
   </table>
-  }
 </div>
+  }

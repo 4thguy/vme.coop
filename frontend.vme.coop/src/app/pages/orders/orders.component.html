@@ -1,11 +1,15 @@
+@if (loading) {
+<mat-spinner />
+} @else if (error) {
+<div class="error-message">
+  <h2>Error fetching orders.</h2>
+</div>
+} @else if (orders.length === 0) {
+<div class="no-orders">
+  <h2>No orders made.</h2>
+</div>
+} @else {
 <div class="table-container">
-  @if (loading) {
-  <mat-spinner />
-  } @else if (orders.length === 0) {
-  <div class="no-orders">
-    <h2>No orders made.</h2>
-  </div>
-  } @else {
   <table mat-table [dataSource]="orders" class="mat-elevation-z8">
 
     <!-- ID Column -->
@@ -51,5 +55,5 @@
 
   <mat-paginator [hidePageSize]="true" [pageIndex]="page - 1" [length]="totalItems"
     [disabled]="pageCount === 1 || loading" (page)="onPageChange($event)" />
-  }
 </div>
+}

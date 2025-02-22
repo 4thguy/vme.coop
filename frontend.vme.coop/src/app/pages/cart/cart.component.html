@@ -1,11 +1,15 @@
+@if (loading) {
+<mat-spinner />
+} @else if (error) {
+<div class="error-message">
+  <h2>Error fetching cart.</h2>
+</div>
+} @else if (cart.products.length === 0) {
+<div class="no-orders">
+  <h2>No orders made.</h2>
+</div>
+} @else {
 <div class="table-container">
-  @if (loading) {
-  <mat-spinner />
-  } @else if (cart.products.length === 0) {
-  <div class="no-products">
-    <h2>No products in cart.</h2>
-  </div>
-  } @else {
   <table mat-table [dataSource]="cart.products" matSort>
     <!-- ID Column -->
     <ng-container matColumnDef="id">
@@ -76,5 +80,5 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
   </table>
-  }
 </div>
+}

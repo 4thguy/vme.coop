@@ -1,3 +1,14 @@
+@if (loading) {
+<mat-spinner />
+} @else if (error) {
+<div class="error-message">
+  <h2>Error fetching products.</h2>
+</div>
+} @else if (products.length === 0) {
+<div class="no-products">
+  <h2>No products found.</h2>
+</div>
+} @else {
 <div class="filter-container">
   <mat-form-field appearance="outline">
     <mat-label>Search by Product Name</mat-label>
@@ -69,12 +80,9 @@
       </mat-card-actions>
     </mat-card>
   </div>
-  } @empty {
-  <div class="no-products">
-    <h2>No products found.</h2>
-  </div>
   }
 </div>
 
 <mat-paginator [hidePageSize]="true" [pageIndex]="page - 1" [length]="totalItems"
   [disabled]="pageCount === 1 || loading" (page)="onPageChange($event)" />
+}

@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -32,6 +33,7 @@ import { ProductsService } from '../../services/products.service';
     MatInputModule,
     MatOptionModule,
     MatPaginatorModule,
+    MatProgressSpinnerModule,
     MatSelectModule,
   ],
   templateUrl: './products.component.html',
@@ -73,6 +75,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
   totalItems = 0;
 
   loading = true;
+  error = false;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -163,6 +166,7 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
     sortParams = sortParams.length === 2 ? sortParams : [];
 
     this.loading = true;
+    this.error = false;
     this.subscriptions.add(
       this.productService.getProducts(pageNumber, this.searchText, this.brandSearch, ...sortParams)
         .subscribe(
@@ -172,16 +176,16 @@ export class ProductsComponent implements OnInit, AfterViewInit, OnDestroy {
             this.pageSize = products.pageSize;
             this.totalItems = products.totalItems;
             this.products = products.data;
-          },
-          (error: any) => {
-            console.error('Error fetching products:', error);
-          },
-          () => {
             this.loading = false;
             requestAnimationFrame(() => {
               this.setEqualHeight();
             })
-          }
+          },
+          (error: any) => {
+            this.loading = false;
+            this.error = true;
+            console.error('Error fetching products:', error);
+          },
         )
     );
   }

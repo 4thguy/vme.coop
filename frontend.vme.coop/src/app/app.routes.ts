@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
 import { CartComponent } from './pages/cart/cart.component';
+import { ErrorComponent } from './pages/error/error.component';
 import { HomeComponent } from './pages/home/home.component';
+import { OrderComponent } from './pages/order/order.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { ProductsComponent } from './pages/products/products.component';
-import { OrderComponent } from './pages/order/order.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -11,4 +12,6 @@ export const routes: Routes = [
   { path: 'cart', component: CartComponent },
   { path: 'orders', component: OrdersComponent },
   { path: 'order/:id', component: OrderComponent },
+  { path: 'error', component: ErrorComponent },
+  { path: '**', redirectTo: 'error' },
 ];

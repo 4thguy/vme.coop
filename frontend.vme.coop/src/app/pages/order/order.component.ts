@@ -26,6 +26,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   order: Order | null = null;
 
   loading = true;
+  error = false;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -44,15 +45,21 @@ export class OrderComponent implements OnInit, OnDestroy {
   }
 
   fetch(): void {
+    this.loading = true;
+    this.error = false;
     const orderId = parseInt(this.route.snapshot.paramMap.get('id') || '0', 10);
     this.subscriptions.add(this.orderService.getOrder(orderId)
       .subscribe(
         (order: Order) => {
           this.order = order;
+          this.loading = false;
           order.order_contents = JSON.parse(order.order_contents || '[]');
         },
-        (error: any) => console.error(error),
-        () => this.loading = false,
+        (error: any) => {
+          this.loading = false;
+          this.error = true;
+          console.error('Error fetching order:', error);
+        },
       ));
   }
 

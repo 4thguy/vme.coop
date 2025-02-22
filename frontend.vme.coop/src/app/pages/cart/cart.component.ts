@@ -38,6 +38,7 @@ export class CartComponent implements OnInit, OnDestroy {
   };
 
   loading = true;
+  error = false;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -55,13 +56,19 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   fetch(): void {
+    this.loading = true;
+    this.error = false;
     this.subscriptions.add(this.cartService.getCart()
       .subscribe(
         (cart: Cart) => {
           this.cart = cart;
+          this.loading = false;
         },
-        (error: any) => console.error(error),
-        () => this.loading = false,
+        (error: any) => {
+          this.loading = false;
+          this.error = true;
+          console.error('Error fetching cart:', error);
+        },
       ));
   }
 

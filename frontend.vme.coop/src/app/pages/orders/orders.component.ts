@@ -8,8 +8,8 @@ import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Order } from '../../interfaces/order.interface';
 import { Wrapper } from '../../interfaces/wrapper.interface';
-import { OrderService } from '../../services/order.service';
 import { CartService } from '../../services/cart.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-orders',
@@ -37,6 +37,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
   totalItems = 0;
 
   loading = true;
+  error = false;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -59,6 +60,8 @@ export class OrdersComponent implements OnInit, OnDestroy {
   }
 
   fetch(pageNumber: number): void {
+    this.loading = true;
+    this.error = false;
     this.subscriptions.add(this.orderService.getOrders(pageNumber)
       .subscribe(
         (orders: Wrapper<Order>) => {
@@ -67,6 +70,7 @@ export class OrdersComponent implements OnInit, OnDestroy {
           this.pageSize = orders.pageSize;
           this.totalItems = orders.totalItems;
           this.orders = orders.data;
+          this.loading = false;
 
           this.orders
             .filter((order: Order) => order.status === 'Awaiting Payment')
@@ -77,8 +81,11 @@ export class OrdersComponent implements OnInit, OnDestroy {
                 }));
             });
         },
-        (error: any) => console.error(error),
-        () => this.loading = false,
+        (error: any) => {
+          this.loading = false;
+          this.error = true;
+          console.error('Error fetching orders:', error);
+        },
       ));
   }
 }
